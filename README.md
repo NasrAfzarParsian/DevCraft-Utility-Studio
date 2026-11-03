@@ -1,3 +1,7 @@
+
+
+
+
 # 🛠️ DevCraft Utility Studio
 
 > A sleek, fast, and feature-rich single-file web application built for developers and designers. Features a CSS Box Shadow Generator, CSS Gradient Designer, Live Markdown Editor with HTML preview, and a Task/Habit Manager.
@@ -20,11 +24,11 @@ Experience **DevCraft Utility Studio** live in your browser:
 
 | CSS Box Shadow Studio | Markdown Editor & Live Preview |
 | :---: | :---: |
-| *(Add your screenshot here)* | *(Add your screenshot here)* |
+| <img width="1592" height="856" alt="Box Shadow Studio" src="https://github.com/user-attachments/assets/8906678f-b7a2-495f-a194-e41daa39c599" /> | <img width="1594" height="860" alt="Markdown Live Studio" src="https://github.com/user-attachments/assets/2fcc52e7-2870-4590-8e25-24cf2a6836ab" /> |
 
 | CSS Gradient Designer | Task & Habit Manager |
 | :---: | :---: |
-| *(Add your screenshot here)* | *(Add your screenshot here)* |
+| <img width="1587" height="860" alt="Gradient Designer" src="https://github.com/user-attachments/assets/9377ad21-05e1-4799-9c75-f6191df4eb03" /> | <img width="1594" height="859" alt="Productivity Hub" src="https://github.com/user-attachments/assets/43091441-7d91-4c40-9684-cbb9533f2c43" /> |
 
 ---
 
