@@ -59,3 +59,15 @@ You can run this project locally without any complex installation process.
 1. Clone the repository:
    ```bash
    git clone https://github.com/NasrAfzarParsian/DevCraft-Utility-Studio.git
+
+   ## 🪙 Crypto Donations
+
+If you'd like to support the development of this project with cryptocurrency, you can send donations to any of the addresses below:
+
+| Cryptocurrency | Network | Wallet Address |
+
+| **Ethereum** | ERC20 | 0x6dDcE2dA8A896B8BC54A1596a640F64f4D5AED37 |
+
+| **Bitcoin** | BTC | bc1qhtmg6zpsfs6nm6pxgt9dpy66t7tg4yz5autt8m |
+
+> *Thank you for your support! Your contributions help keep this project maintained and updated.*
