@@ -1,6 +1,9 @@
 # فایل .github/FUNDING.yml
 github: NasrAfzarParsian
-custom: [My Bitcoin address to receive:
-bc1qhtmg6zpsfs6nm6pxgt9dpy66t7tg4yz5autt8m, My BNB Smart Chain address to receive:
-0x6dDcE2dA8A896B8BC54A1596a640F64f4D5AED37, My Ethereum address to receive:
-0x6dDcE2dA8A896B8BC54A1596a640F64f4D5AED37]
+custom:
+My Bitcoin address to receive:
+bc1qhtmg6zpsfs6nm6pxgt9dpy66t7tg4yz5autt8m
+My BNB Smart Chain address to receive:
+0x6dDcE2dA8A896B8BC54A1596a640F64f4D5AED37
+My Ethereum address to receive:
+0x6dDcE2dA8A896B8BC54A1596a640F64f4D5AED37
