@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevCraft Utility Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Marked JS for Markdown Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(75, 85, 99, 0.5); }
+        /* Markdown Preview Styling */
+        .markdown-preview h1 { font-size: 1.875rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.25rem; }
+        .dark .markdown-preview h1 { border-color: #374151; }
+        .markdown-preview h2 { font-size: 1.5rem; font-weight: 600; margin-top: 0.875rem; margin-bottom: 0.5rem; }
+        .markdown-preview h3 { font-size: 1.25rem; font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.5rem; }
+        .markdown-preview p { margin-bottom: 0.75rem; line-height: 1.625; }
+        .markdown-preview ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-preview ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-preview code { background-color: rgba(156, 163, 175, 0.2); padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-family: monospace; }
+        .markdown-preview pre { background-color: #1f2937; color: #f3f4f6; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.75rem; }
+        .markdown-preview pre code { background-color: transparent; padding: 0; color: inherit; }
+        .markdown-preview blockquote { border-left: 4px solid #0ea5e9; padding-left: 1rem; color: #6b7280; font-style: italic; margin-bottom: 0.75rem; }
+        .dark .markdown-preview blockquote { color: #9ca3af; }
+        .markdown-preview a { color: #0ea5e9; text-decoration: underline; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-gray-700 dark:border-gray-200 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600"></i>
+        <span id="toast-msg" class="text-sm font-medium">Action completed successfully</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 sm:px-8 py-3 transition-colors">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-cubes text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight leading-none bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">DevCraft Studio</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Developer & Productivity Suite</p>
+                </div>
+            </div>
+
+            <!-- Tab Buttons -->
+            <nav class="hidden md:flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
+                <button onclick="switchTab('shadow')" id="tab-shadow" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 bg-white dark:bg-gray-700 text-brand-600 dark:text-brand-400 shadow-sm">
+                    <i class="fa-solid fa-layer-group text-xs"></i>
+                    <span>Shadow Generator</span>
+                </button>
+                <button onclick="switchTab('gradient')" id="tab-gradient" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                    <i class="fa-solid fa-palette text-xs"></i>
+                    <span>Gradient Designer</span>
+                </button>
+                <button onclick="switchTab('markdown')" id="tab-markdown" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                    <i class="fa-brands fa-markdown text-xs"></i>
+                    <span>Markdown Studio</span>
+                </button>
+                <button onclick="switchTab('tasks')" id="tab-tasks" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                    <i class="fa-solid fa-check-double text-xs"></i>
+                    <span>Task Hub</span>
+                </button>
+            </nav>
+
+            <!-- Actions -->
+            <div class="flex items-center space-x-3">
+                <button id="theme-toggle" onclick="toggleTheme()" class="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center space-x-2 px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium transition-colors shadow-sm">
+                    <i class="fa-brands fa-github text-base"></i>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="md:hidden flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-x-auto p-2 space-x-1">
+        <button onclick="switchTab('shadow')" id="mob-tab-shadow" class="mob-nav-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-500 text-white">Shadows</button>
+        <button onclick="switchTab('gradient')" id="mob-tab-gradient" class="mob-nav-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400">Gradients</button>
+        <button onclick="switchTab('markdown')" id="mob-tab-markdown" class="mob-nav-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400">Markdown</button>
+        <button onclick="switchTab('tasks')" id="mob-tab-tasks" class="mob-nav-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400">Tasks Hub</button>
+    </div>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- TAB 1: CSS BOX SHADOW GENERATOR -->
+        <section id="view-shadow" class="tab-view block space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div>
+                    <h2 class="text-2xl font-bold">Box Shadow Studio</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Create multi-layered custom shadows and export CSS snippets instantly.</p>
+                </div>
+                <button onclick="resetShadowControls()" class="self-start md:self-auto px-4 py-2 rounded-xl text-xs font-semibold bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+                    <i class="fa-solid fa-rotate-left mr-1.5"></i> Reset Default
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Shadow Controls -->
+                <div class="lg:col-span-5 space-y-5 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div>
+                        <div class="flex justify-between text-sm font-medium mb-1">
+                            <label>Horizontal Offset</label>
+                            <span id="val-shadow-x" class="font-mono text-brand-600 dark:text-brand-400">0px</span>
+                        </div>
+                        <input type="range" id="shadow-x" min="-100" max="100" value="0" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateShadow()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm font-medium mb-1">
+                            <label>Vertical Offset</label>
+                            <span id="val-shadow-y" class="font-mono text-brand-600 dark:text-brand-400">10px</span>
+                        </div>
+                        <input type="range" id="shadow-y" min="-100" max="100" value="10" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateShadow()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm font-medium mb-1">
+                            <label>Blur Radius</label>
+                            <span id="val-shadow-blur" class="font-mono text-brand-600 dark:text-brand-400">25px</span>
+                        </div>
+                        <input type="range" id="shadow-blur" min="0" max="100" value="25" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateShadow()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm font-medium mb-1">
+                            <label>Spread Radius</label>
+                            <span id="val-shadow-spread" class="font-mono text-brand-600 dark:text-brand-400">-5px</span>
+                        </div>
+                        <input type="range" id="shadow-spread" min="-50" max="50" value="-5" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateShadow()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm font-medium mb-1">
+                            <label>Shadow Opacity</label>
+                            <span id="val-shadow-opacity" class="font-mono text-brand-600 dark:text-brand-400">0.10</span>
+                        </div>
+                        <input type="range" id="shadow-opacity" min="0" max="1" step="0.01" value="0.10" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateShadow()">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5">Shadow Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="color" id="shadow-color" value="#000000" class="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer p-0.5 bg-transparent" oninput="updateShadow()">
+                                <input type="text" id="shadow-color-text" value="#000000" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 font-mono" oninput="syncColorInput('shadow-color', this.value); updateShadow()">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5">Box Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="color" id="box-color" value="#ffffff" class="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer p-0.5 bg-transparent" oninput="updateShadow()">
+                                <input type="text" id="box-color-text" value="#ffffff" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 font-mono" oninput="syncColorInput('box-color', this.value); updateShadow()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3 pt-2">
+                        <input type="checkbox" id="shadow-inset" class="w-4 h-4 text-brand-600 rounded border-gray-300 dark:border-gray-700 focus:ring-brand-500" onchange="updateShadow()">
+                        <label for="shadow-inset" class="text-sm font-medium cursor-pointer">Inset Shadow (Inner)</label>
+                    </div>
+                </div>
+
+                <!-- Preview Area -->
+                <div class="lg:col-span-7 flex flex-col space-y-6">
+                    <div id="shadow-preview-bg" class="flex-grow min-h-[320px] rounded-2xl bg-gray-100 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 flex items-center justify-center p-8 transition-colors relative overflow-hidden">
+                        <div id="shadow-target-box" class="w-64 h-64 rounded-2xl flex flex-col items-center justify-center p-6 transition-all duration-150">
+                            <i class="fa-solid fa-cube text-4xl text-brand-500 opacity-80 mb-2"></i>
+                            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Preview Element</span>
+                        </div>
+                    </div>
+
+                    <!-- Code Output -->
+                    <div class="bg-gray-900 text-gray-100 rounded-2xl p-5 border border-gray-800 relative">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono">Generated CSS</span>
+                            <button onclick="copyCode('code-shadow-output')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 hover:bg-brand-500 text-white transition flex items-center space-x-1.5">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                        <pre class="font-mono text-sm overflow-x-auto text-brand-300 bg-gray-950 p-4 rounded-xl border border-gray-800"><code id="code-shadow-output">box-shadow: 0px 10px 25px -5px rgba(0, 0, 0, 0.1);</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: CSS GRADIENT DESIGNER -->
+        <section id="view-gradient" class="tab-view hidden space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div>
+                    <h2 class="text-2xl font-bold">Gradient Designer</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Design linear and radial gradients with customizable direction and presets.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="generateRandomGradient()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 hover:bg-brand-600 text-white transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-dice"></i>
+                        <span>Randomize</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Controls -->
+                <div class="lg:col-span-5 space-y-5 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Gradient Type</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setGradientType('linear')" id="btn-grad-linear" class="py-2 px-3 text-xs font-semibold rounded-xl border border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400">Linear</button>
+                            <button onclick="setGradientType('radial')" id="btn-grad-radial" class="py-2 px-3 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 text-gray-700 dark:text-gray-300">Radial</button>
+                        </div>
+                    </div>
+
+                    <div id="container-angle">
+                        <div class="flex justify-between text-sm font-medium mb-1">
+                            <label>Angle Degree</label>
+                            <span id="val-grad-angle" class="font-mono text-brand-600 dark:text-brand-400">90deg</span>
+                        </div>
+                        <input type="range" id="grad-angle" min="0" max="360" value="90" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateGradient()">
+                    </div>
+
+                    <!-- Color Stops -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium">Color Stops</label>
+                        <div class="flex items-center space-x-3">
+                            <input type="color" id="grad-color-1" value="#0ea5e9" class="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer p-0.5 bg-transparent" oninput="updateGradient()">
+                            <input type="text" id="grad-color-1-text" value="#0ea5e9" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 font-mono" oninput="syncColorInput('grad-color-1', this.value); updateGradient()">
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="color" id="grad-color-2" value="#6366f1" class="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer p-0.5 bg-transparent" oninput="updateGradient()">
+                            <input type="text" id="grad-color-2-text" value="#6366f1" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 font-mono" oninput="syncColorInput('grad-color-2', this.value); updateGradient()">
+                        </div>
+                    </div>
+
+                    <!-- Presets -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Curated Presets</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="applyGradientPreset('#ff7e5f', '#feb47b')" class="h-10 rounded-xl bg-gradient-to-r from-[#ff7e5f] to-[#feb47b] border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform"></button>
+                            <button onclick="applyGradientPreset('#00c6ff', '#0072ff')" class="h-10 rounded-xl bg-gradient-to-r from-[#00c6ff] to-[#0072ff] border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform"></button>
+                            <button onclick="applyGradientPreset('#f857a6', '#ff5858')" class="h-10 rounded-xl bg-gradient-to-r from-[#f857a6] to-[#ff5858] border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform"></button>
+                            <button onclick="applyGradientPreset('#11998e', '#38ef7d')" class="h-10 rounded-xl bg-gradient-to-r from-[#11998e] to-[#38ef7d] border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Area -->
+                <div class="lg:col-span-7 flex flex-col space-y-6">
+                    <div id="grad-preview-box" class="flex-grow min-h-[320px] rounded-2xl shadow-inner border border-gray-200 dark:border-gray-800 flex items-center justify-center p-8 transition-all">
+                        <span class="px-4 py-2 rounded-xl bg-black/30 backdrop-blur-md text-white text-xs font-semibold tracking-wide uppercase">Gradient Canvas</span>
+                    </div>
+
+                    <!-- Code Snippets -->
+                    <div class="bg-gray-900 text-gray-100 rounded-2xl p-5 border border-gray-800 space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono">CSS Standard</span>
+                                <button onclick="copyCode('code-grad-css')" class="px-3 py-1 rounded-lg text-xs font-medium bg-gray-800 hover:bg-gray-700 text-brand-400 transition">Copy</button>
+                            </div>
+                            <pre class="font-mono text-sm text-brand-300 bg-gray-950 p-3 rounded-xl border border-gray-800 overflow-x-auto"><code id="code-grad-css">background: linear-gradient(90deg, #0ea5e9, #6366f1);</code></pre>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider font-mono">Tailwind Arbitrary Class</span>
+                                <button onclick="copyCode('code-grad-tw')" class="px-3 py-1 rounded-lg text-xs font-medium bg-gray-800 hover:bg-gray-700 text-brand-400 transition">Copy</button>
+                            </div>
+                            <pre class="font-mono text-sm text-indigo-300 bg-gray-950 p-3 rounded-xl border border-gray-800 overflow-x-auto"><code id="code-grad-tw">bg-[linear-gradient(90deg,#0ea5e9,#6366f1)]</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: MARKDOWN LIVE EDITOR -->
+        <section id="view-markdown" class="tab-view hidden space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div>
+                    <h2 class="text-2xl font-bold">Markdown Live Studio</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Write Markdown with instant HTML rendering and quick document actions.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="clearMarkdown()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Clear
+                    </button>
+                    <button onclick="copyMarkdownHTML()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 hover:bg-brand-600 text-white transition flex items-center space-x-1.5">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copy Compiled HTML</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">
+                <!-- Editor Pane -->
+                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+                    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-mono">Markdown Input</span>
+                        <span id="md-char-count" class="text-xs text-gray-400 font-mono">0 chars</span>
+                    </div>
+                    <textarea id="md-input" class="flex-grow w-full p-4 bg-transparent resize-none font-mono text-sm focus:outline-none dark:text-gray-100" placeholder="Type your markdown here..." oninput="updateMarkdown()"></textarea>
+                </div>
+
+                <!-- Preview Pane -->
+                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+                    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-mono">Live HTML Preview</span>
+                        <i class="fa-regular fa-eye text-gray-400 text-xs"></i>
+                    </div>
+                    <div id="md-preview" class="markdown-preview flex-grow p-6 overflow-y-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100">
+                        <!-- Preview content rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: TASK & HABIT DASHBOARD -->
+        <section id="view-tasks" class="tab-view hidden space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div>
+                    <h2 class="text-2xl font-bold">Productivity Hub</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Track tasks and keep daily developer habits organized in local storage.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="task-completion-badge" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800">
+                        0% Completed
+                    </span>
+                </div>
+            </div>
+
+            <!-- Task Input -->
+            <form onsubmit="handleAddTask(event)" class="flex flex-col sm:flex-row gap-3">
+                <input type="text" id="task-input" placeholder="Add a new goal or task..." required class="flex-grow px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:border-brand-500 dark:text-gray-100 shadow-sm">
+                <select id="task-category" class="px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:border-brand-500 dark:text-gray-100 shadow-sm">
+                    <option value="Dev">💻 Dev</option>
+                    <option value="Design">🎨 Design</option>
+                    <option value="Habit">🌱 Habit</option>
+                    <option value="General">📌 General</option>
+                </select>
+                <button type="submit" class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition shadow-lg shadow-brand-500/20">
+                    Add Task
+                </button>
+            </form>
+
+            <!-- Task Filters -->
+            <div class="flex items-center justify-between pt-2">
+                <div class="flex space-x-2">
+                    <button onclick="setTaskFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">All</button>
+                    <button onclick="setTaskFilter('active')" id="filter-active" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400">Active</button>
+                    <button onclick="setTaskFilter('completed')" id="filter-completed" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400">Completed</button>
+                </div>
+                <button onclick="clearCompletedTasks()" class="text-xs text-gray-500 hover:text-red-500 transition">Clear Completed</button>
+            </div>
+
+            <!-- Task List Container -->
+            <div id="task-list" class="space-y-3 min-h-[250px]">
+                <!-- Dynamic task cards inserted here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-6 mt-12 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400">
+            <p>© 2026 DevCraft Utility Studio. Open Source & GitHub Pages Ready.</p>
+            <div class="flex items-center space-x-4">
+                <span>Built with HTML, CSS & Vanilla JS</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // GLOBAL STATE & STORAGE KEYS
+        const STORAGE_KEY_TASKS = 'devcraft_tasks_v1';
+        const STORAGE_KEY_THEME = 'devcraft_theme_v1';
+        let currentGradientType = 'linear';
+        let currentTaskFilter = 'all';
+
+        let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS)) || [
+            { id: '1', text: 'Initialize Github Pages Repository', category: 'Dev', completed: true },
+            { id: '2', text: 'Build Box Shadow & Gradient Generators', category: 'Design', completed: true },
+            { id: '3', text: 'Deploy DevCraft Utility Studio', category: 'Dev', completed: false }
+        ];
+
+        const defaultMarkdown = `# Welcome to Markdown Studio 🚀
+
+Write your markdown here and see instant live previews!
+
+### Key Features:
+- **Clean Syntax**: Standard CommonMark compatibility.
+- **Fast Rendering**: Powered by lightweight marked parser.
+- **One-Click Export**: Easily copy the generated HTML structure.
+
+> "Simplicity is prerequisite for reliability." – Edsger W. Dijkstra
+
+\`\`\`javascript
+// Example Code
+const devCraft = {
+    utility: "Developer Suite",
+    readyForGitHub: true
+};
+console.log(devCraft);
+\`\`\`
+`;
+
+        // INITIALIZATION
+        window.onload = () => {
+            initTheme();
+            updateShadow();
+            updateGradient();
+            document.getElementById('md-input').value = defaultMarkdown;
+            updateMarkdown();
+            renderTasks();
+        };
+
+        // THEME MANAGEMENT
+        function initTheme() {
+            const savedTheme = localStorage.getItem(STORAGE_KEY_THEME);
+            const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon';
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem(STORAGE_KEY_THEME, isDark ? 'dark' : 'light');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            showToast(isDark ? 'Switched to Dark Mode' : 'Switched to Light Mode');
+        }
+
+        // NAVIGATION TAB SWITCHING
+        function switchTab(tabId) {
+            // Hide all views
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            // Update desktop active tab styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+            });
+            const activeNav = document.getElementById(`tab-${tabId}`);
+            if(activeNav) {
+                activeNav.className = 'nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 bg-white dark:bg-gray-700 text-brand-600 dark:text-brand-400 shadow-sm';
+            }
+
+            // Update mobile tab styling
+            document.querySelectorAll('.mob-nav-btn').forEach(btn => {
+                btn.className = 'mob-nav-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400';
+            });
+            const activeMobNav = document.getElementById(`mob-tab-${tabId}`);
+            if(activeMobNav) {
+                activeMobNav.className = 'mob-nav-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-500 text-white';
+            }
+        }
+
+        // TOOL 1: SHADOW GENERATOR LOGIC
+        function updateShadow() {
+            const x = document.getElementById('shadow-x').value;
+            const y = document.getElementById('shadow-y').value;
+            const blur = document.getElementById('shadow-blur').value;
+            const spread = document.getElementById('shadow-spread').value;
+            const opacity = document.getElementById('shadow-opacity').value;
+            const shadowColor = document.getElementById('shadow-color').value;
+            const boxColor = document.getElementById('box-color').value;
+            const isInset = document.getElementById('shadow-inset').checked;
+
+            document.getElementById('val-shadow-x').innerText = `${x}px`;
+            document.getElementById('val-shadow-y').innerText = `${y}px`;
+            document.getElementById('val-shadow-blur').innerText = `${blur}px`;
+            document.getElementById('val-shadow-spread').innerText = `${spread}px`;
+            document.getElementById('val-shadow-opacity').innerText = opacity;
+
+            // Convert hex color to rgba for opacity support
+            const rgbaColor = hexToRgba(shadowColor, opacity);
+            const insetStr = isInset ? 'inset ' : '';
+            const shadowCss = `${insetStr}${x}px ${y}px ${blur}px ${spread}px ${rgbaColor}`;
+
+            const targetBox = document.getElementById('shadow-target-box');
+            targetBox.style.boxShadow = shadowCss;
+            targetBox.style.backgroundColor = boxColor;
+
+            document.getElementById('code-shadow-output').innerText = `box-shadow: ${shadowCss};`;
+        }
+
+        function resetShadowControls() {
+            document.getElementById('shadow-x').value = 0;
+            document.getElementById('shadow-y').value = 10;
+            document.getElementById('shadow-blur').value = 25;
+            document.getElementById('shadow-spread').value = -5;
+            document.getElementById('shadow-opacity').value = 0.10;
+            document.getElementById('shadow-color').value = '#000000';
+            document.getElementById('shadow-color-text').value = '#000000';
+            document.getElementById('box-color').value = '#ffffff';
+            document.getElementById('box-color-text').value = '#ffffff';
+            document.getElementById('shadow-inset').checked = false;
+            updateShadow();
+            showToast('Shadow controls reset');
+        }
+
+        // TOOL 2: GRADIENT DESIGNER LOGIC
+        function setGradientType(type) {
+            currentGradientType = type;
+            const angleContainer = document.getElementById('container-angle');
+            const btnLinear = document.getElementById('btn-grad-linear');
+            const btnRadial = document.getElementById('btn-grad-radial');
+
+            if (type === 'linear') {
+                angleContainer.classList.remove('hidden');
+                btnLinear.className = 'py-2 px-3 text-xs font-semibold rounded-xl border border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400';
+                btnRadial.className = 'py-2 px-3 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 text-gray-700 dark:text-gray-300';
+            } else {
+                angleContainer.classList.add('hidden');
+                btnRadial.className = 'py-2 px-3 text-xs font-semibold rounded-xl border border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400';
+                btnLinear.className = 'py-2 px-3 text-xs font-semibold rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 text-gray-700 dark:text-gray-300';
+            }
+            updateGradient();
+        }
+
+        function updateGradient() {
+            const angle = document.getElementById('grad-angle').value;
+            const c1 = document.getElementById('grad-color-1').value;
+            const c2 = document.getElementById('grad-color-2').value;
+
+            document.getElementById('val-grad-angle').innerText = `${angle}deg`;
+
+            let cssValue = '';
+            let twValue = '';
+
+            if (currentGradientType === 'linear') {
+                cssValue = `linear-gradient(${angle}deg, ${c1}, ${c2})`;
+                twValue = `bg-[linear-gradient(${angle}deg,${c1},${c2})]`;
+            } else {
+                cssValue = `radial-gradient(circle, ${c1}, ${c2})`;
+                twValue = `bg-[radial-gradient(circle,${c1},${c2})]`;
+            }
+
+            document.getElementById('grad-preview-box').style.background = cssValue;
+            document.getElementById('code-grad-css').innerText = `background: ${cssValue};`;
+            document.getElementById('code-grad-tw').innerText = twValue;
+        }
+
+        function applyGradientPreset(c1, c2) {
+            document.getElementById('grad-color-1').value = c1;
+            document.getElementById('grad-color-1-text').value = c1;
+            document.getElementById('grad-color-2').value = c2;
+            document.getElementById('grad-color-2-text').value = c2;
+            updateGradient();
+        }
+
+        function generateRandomGradient() {
+            const r1 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            const r2 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            const angle = Math.floor(Math.random() * 360);
+            document.getElementById('grad-angle').value = angle;
+            applyGradientPreset(r1, r2);
+            showToast('Generated random gradient');
+        }
+
+        // TOOL 3: MARKDOWN STUDIO LOGIC
+        function updateMarkdown() {
+            const rawText = document.getElementById('md-input').value;
+            document.getElementById('md-char-count').innerText = `${rawText.length} chars`;
+            const htmlOutput = marked.parse(rawText);
+            document.getElementById('md-preview').innerHTML = htmlOutput;
+        }
+
+        function clearMarkdown() {
+            document.getElementById('md-input').value = '';
+            updateMarkdown();
+            showToast('Markdown cleared');
+        }
+
+        function copyMarkdownHTML() {
+            const rawText = document.getElementById('md-input').value;
+            const htmlOutput = marked.parse(rawText);
+            copyToClipboard(htmlOutput);
+            showToast('Compiled HTML copied to clipboard');
+        }
+
+        // TOOL 4: TASK HUB LOGIC
+        function renderTasks() {
+            const listEl = document.getElementById('task-list');
+            listEl.innerHTML = '';
+
+            let filtered = tasks.filter(t => {
+                if (currentTaskFilter === 'active') return !t.completed;
+                if (currentTaskFilter === 'completed') return t.completed;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-10 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
+                        <i class="fa-solid fa-list-check text-3xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-500">No tasks found in this view.</p>
+                    </div>
+                `;
+            } else {
+                filtered.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = `flex items-center justify-between p-4 rounded-xl bg-white dark:bg-gray-800 border ${task.completed ? 'border-gray-200 dark:border-gray-800 opacity-60' : 'border-gray-200 dark:border-gray-700'} shadow-sm transition`;
+                    
+                    const catBadgeColor = {
+                        'Dev': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+                        'Design': 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+                        'Habit': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+                        'General': 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                    }[task.category] || 'bg-gray-100 text-gray-700';
+
+                    card.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <button onclick="toggleTask('${task.id}')" class="w-5 h-5 rounded-md border flex items-center justify-center transition ${task.completed ? 'bg-brand-500 border-brand-500 text-white' : 'border-gray-300 dark:border-gray-600'}">
+                                ${task.completed ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                            </button>
+                            <span class="text-sm font-medium ${task.completed ? 'line-through text-gray-400' : ''}">${escapeHtml(task.text)}</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-semibold ${catBadgeColor}">${task.category}</span>
+                            <button onclick="deleteTask('${task.id}')" class="text-gray-400 hover:text-red-500 transition text-sm">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    `;
+                    listEl.appendChild(card);
+                });
+            }
+
+            // Update Completion Percentage
+            const total = tasks.length;
+            const completedCount = tasks.filter(t => t.completed).length;
+            const percentage = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+            document.getElementById('task-completion-badge').innerText = `${percentage}% Completed`;
+
+            // Save to localStorage
+            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks));
+        }
+
+        function handleAddTask(e) {
+            e.preventDefault();
+            const input = document.getElementById('task-input');
+            const category = document.getElementById('task-category').value;
+            const text = input.value.trim();
+
+            if (text) {
+                tasks.unshift({
+                    id: Date.now().toString(),
+                    text: text,
+                    category: category,
+                    completed: false
+                });
+                input.value = '';
+                renderTasks();
+                showToast('Task added successfully');
+            }
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+            showToast('Task deleted');
+        }
+
+        function setTaskFilter(filter) {
+            currentTaskFilter = filter;
+            ['all', 'active', 'completed'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400';
+                }
+            });
+            renderTasks();
+        }
+
+        function clearCompletedTasks() {
+            tasks = tasks.filter(t => !t.completed);
+            renderTasks();
+            showToast('Completed tasks cleared');
+        }
+
+        // UTILITY FUNCTIONS
+        function syncColorInput(colorId, val) {
+            if (/^#[0-9A-F]{6}$/i.test(val)) {
+                document.getElementById(colorId).value = val;
+            }
+        }
+
+        function hexToRgba(hex, alpha) {
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            const num = parseInt(c, 16);
+            return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+        }
+
+        function copyCode(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            copyToClipboard(text);
+            showToast('Snippet copied to clipboard!');
+        }
+
+        function copyToClipboard(text) {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+    </script>
+</body>
+</html>
