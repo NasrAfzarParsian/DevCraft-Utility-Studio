@@ -60,6 +60,8 @@ You can run this project locally without any complex installation process.
    ```bash
    git clone https://github.com/NasrAfzarParsian/DevCraft-Utility-Studio.git
 
+--
+
    ## 🪙 Crypto Donations
 
 If you'd like to support the development of this project with cryptocurrency, you can send donations to any of the addresses below:
