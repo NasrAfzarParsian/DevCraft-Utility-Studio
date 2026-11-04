@@ -72,4 +72,4 @@ If you'd like to support the development of this project with cryptocurrency, yo
 
 | **Bitcoin** | BTC | bc1qhtmg6zpsfs6nm6pxgt9dpy66t7tg4yz5autt8m |
 
-> *Thank you for your support! Your contributions help keep this project maintained and updated.*
+> *Thank you for your support! Your contributions help us create more useful projects.*
